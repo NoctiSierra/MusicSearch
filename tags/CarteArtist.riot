@@ -1,0 +1,19 @@
+<carteartist>
+	<div class="card border-primary mb-3 mx-2" style="max-width: 20rem;min-width: 20rem;">
+		<div class="card-header">{props.artiste}</div>
+		<div class="card-body">
+			<p class="card-text">Score: {props.describ}/ 100</p>
+		</div>
+	</div>
+	<script>
+		export default{
+			state: {
+				mi_id:""
+			},
+			onMouted(props,state){
+				this.state.mi_id=this.props.id;
+
+			}
+		}
+	</script>
+</carteartist>

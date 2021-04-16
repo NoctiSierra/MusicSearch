@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<title>Music search-Alex Maizeroi</title>
+	<link rel="stylesheet" type="text/css" href="https://bootswatch.com/4/superhero/bootstrap.min.css">
+	<!-- Les différent tags-->
+	
+	<script src="tags/App.riot" type="riot"></script>
+	<script src="tags/CarteArtist.riot" type="riot"></script>
+	<script src="tags/topbar.riot" type="riot"></script>
+	<script src="tags/Foot.riot" type="riot"></script>
+	<script src="tags/Album.riot" type="riot"></script>
+	<script src="tags/cardmusic.riot" type="riot"></script>
+	<script src="tags/FocusAlbum.riot" type="riot"></script>
+
+	<script src="https://cdn.jsdelivr.net/npm/riot@4/riot+compiler.min.js"></script>
+
+	<script src="js/RequestAjaxMusicBrainz"></script>
+</head>
+<body>
+	<app></app>
+</body>
+<script>
+
+	riot.compile().then(()=>{
+		riot.install(function (argument) {
+			if (argument.name =="app") {
+				argument.sa = makeAjaxService();	
+			}
+		})
+		riot.mount('app');
+	});
+</script>
+</html>

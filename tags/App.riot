@@ -1,0 +1,278 @@
+<app>
+	<!-- la vue -->
+	<TopBar transmission={recup_filter_info} completion={completion_info} getter={get_autocomplete}></TopBar>
+	<div class="row m-5 ">
+		<!--<carteartist each={item in state.request.artists } artiste={item.name} describ={item.score} ></carteartist>-->
+		<carteArtist if={state.request && (state.filter=="artist")&& state.focus_info == false} each={item in state.request } key={item.id} artiste={item.name} describ={item.score} listen={_object_info}></carteArtist>
+		<album if={state.request &&  (state.filter=="release") && state.focus_info == false} each={item in state.request} key={item.id} refere={item} listen={_object_info} identifiant={item.id}></album>
+
+		<cardMusic if={state.request && (state.filter=="recording") && state.focus_info == false} each={item in state.request} key={item.id} refere={item} listen={_object_info}></cardMusic>
+		<focusAlbum if={state.focus_info} retour={_return_focus} acces={state.focus_request} ></focusAlbum>
+	</div>
+	
+	<div if={state.page_total}>
+		<ul class="pagination justify-content-center">
+		  <li class="page-item ">
+		  <button class="page-link" onclick="{_page_precedente}">&laquo;</button>
+		  </li>
+		  <li class="page-item disabled">
+			  <button class="page-kink">{state.page_courante} sur {state.page_total}</button>
+		  </li>
+		  <li class="page-item">
+			<button class="page-link" onclick="{_page_suivante}">&raquo;</button>
+		  </li>
+		</ul>
+	  </div>
+	<Foot></Foot>
+	<script>
+		/*
+		* Fonction qui permet de remplacer les espaces d'une chaine de caractère par des "_"
+		*créer dans le but de formaliser la requête HTML
+		*/
+
+		function str_format(str){
+					str = str.replace(/ /g, "_");
+					return str;
+				};
+
+		export default {
+
+			state: {
+				//résultat de la requête ajax pour l'affichage
+				request: [],
+				//résultat de la requête ajax pour l'autocompletion
+				autocompletion_request:[],
+				//chaine a rechercher pour l'affichage des résultat
+				target:"",
+				//type de filtre
+				//peut changer en fonction de l'autocompletion ou la recherche
+				filter:"",
+				//recupération des donnée du filtre
+				target_autocompletion:"",
+				//tableau qui stocke l'autocompletion a envoyer au formulaire de recherche
+				data_autocompletion:[],
+				// "boolean"
+				focus_info: false,
+				//stockage pour la requête du focus
+				focus_request:[],
+				//Id de recherche pour la requête focus
+				id_search:"",
+				// page courante
+				page_courante: null,
+				// nombre total de page
+				page_total:null,
+				// offset de la page
+				page_offset:null,
+			},
+
+			//recherche caractérise la chaine à rechercher
+			recup_filter_info(type,recherche){
+				console.log("entrez 2");
+				this.update({target:recherche});
+				this.update({filter:type});
+				this.update();
+				this._change();
+			},
+
+			//recuperation des infos pour la mise à jour de l'autocompletion
+			/*completion_info(chaine,filtre){
+				console.log("mise à jour completion");
+				this.update({target_autocompletion:chaine});
+				this.update({filter:filtre});
+				this._change_autocomplete();
+			},*/
+
+			//fonction qui permet de changer l'affichage lors d'une recherche
+			_change(){
+				console.log("Requête");
+				//On vérifie que les élément nécéssaire à la requête ne sont pas vide
+				if (this.state.target && this.state.filter) {
+					switch(this.state.filter){
+						case "artist":this.state.page_courante=1;
+									this.state.page_offset=0;
+									this.sa.getArtiste(str_format(this.state.target),(this.state.page_offset)).then((argument) => {
+											//console.log(argument);
+											this.state.page_total=Math.ceil(argument.count/25)
+											this.state.request = argument.artists;
+											this.update();
+									});
+									break;
+
+						case "release":this.state.page_courante=1;
+									this.state.page_offset=0;
+									this.sa.getRelease(str_format(this.state.target),(this.state.page_offset)).then((argument) => {
+										//console.log(argument);
+										this.state.page_total=Math.ceil(argument.count/25)
+										this.state.request = argument.releases;
+										this.update();
+									});
+									break;
+
+						case "recording":this.state.page_courante=1;
+									this.state.page_offset=0;
+									this.sa.getRecording(str_format(this.state.target),(this.state.page_offset)).then((argument) => {
+										console.log(argument);
+										this.state.page_total=Math.ceil(argument.count/25)
+										this.state.request = argument.recordings;
+										this.update();
+									});
+									break;
+					}
+					
+				}
+
+			},
+
+			/*Assigne l'id de la carte cliquer afin de lancer la requête*/
+			_object_info(id_object){
+				this.state.id_search=id_object;
+				this.update();
+				this._makeRequest();
+				this._update_focus();
+			},
+
+			/*fonction qui réalise la requête pour le focus lui permettant d'accéder à l'objet json*/
+			_makeRequest(){
+				if(this.state.id_search){
+					this.sa.getReleaseInfo(str_format(this.state.id_search)).then((argument) => {
+						//console.log(argument);
+						this.state.focus_request = argument;
+						this.update();
+					});
+				}
+			},
+
+			/*Fonction qui permet de faire fonctionner le focus sur un album*/
+			_update_focus(){
+				this.update({focus_info:true});
+				this.update();
+			},
+
+			/*Fonction qui permet de faire fonctionner le bouton retour*/
+			_return_focus(){
+				this.update({focus_info:false});
+				this.update();
+			},
+
+			/*Fonction permettant la page suivante de la pagination*/
+			_page_suivante(){
+				if (this.state.target && this.state.filter) {
+					switch(this.state.filter){
+						case "artist":this.sa.getArtiste(str_format(this.state.target),this.state.page_offset+1).then((argument) => {
+											//console.log(argument);
+											this.state.page_total=Math.ceil(argument.count/25)
+											this.state.request = argument.artists;
+											this.state.page_offset=this.state.page_offset+1;
+											this.state.page_courante=this.state.page_courante+1;
+											this.update();
+									});
+									break;
+
+						case "release":this.sa.getRelease(str_format(this.state.target),this.state.page_offset+1).then((argument) => {
+										this.state.page_total=Math.ceil(argument.count/25)
+										this.state.request = argument.releases;
+										this.state.page_offset=this.state.page_offset+1;
+										this.state.page_courante=this.state.page_courante+1;
+										this.update();
+									});
+									break;
+
+						case "recording":this.sa.getRecording(str_format(this.state.target),this.state.page_offset+1).then((argument) => {
+										console.log(argument);
+										this.state.page_total=Math.ceil(argument.count/25)
+										this.state.request = argument.recordings;
+										this.state.page_offset=this.state.page_offset+1;
+										this.state.page_courante=this.state.page_courante+1;
+										this.update();
+									});
+									break;
+					}
+					
+				}
+			},
+
+			/*Fonction permettant la page précédente*/
+			_page_precedente(){
+
+				if (this.state.target && this.state.filter) {
+					switch(this.state.filter){
+						case "artist":this.sa.getArtiste(str_format(this.state.target),this.state.page_offset-1).then((argument) => {
+											//console.log(argument);
+											this.state.page_total=Math.ceil(argument.count/25)
+											this.state.request = argument.artists;
+											this.state.page_courante=this.state.page_courante-1;
+											this.update();
+									});
+									break;
+
+						case "release":this.sa.getRelease(str_format(this.state.target),this.state.page_offset-1).then((argument) => {
+										this.state.page_total=Math.ceil(argument.count/25)
+										this.state.request = argument.releases;
+										this.state.page_courante=this.state.page_courante-1;
+										this.state.page_offset=this.state.page_offset-1;
+										this.update();
+									});
+									break;
+
+						case "recording":this.sa.getRecording(str_format(this.state.target),this.state.page_offset-1).then((argument) => {
+										console.log(argument);
+										this.state.page_total=Math.ceil(argument.count/25)
+										this.state.request = argument.recordings;
+										this.state.page_courante=this.state.page_courante-1;
+										this.state.page_offset=this.state.page_offset-1;
+										this.update();
+									});
+									break;
+					}
+					
+				}
+
+			}
+			//met à jour la requête pour l'autocompletion et les range dans data_autocompletion pour le getter
+			/*_change_autocomplete(){
+					//console.log(this.state.filter);
+					switch(this.state.filter){
+						case "artist":this.sa.getArtiste(str_format(this.state.target_autocompletion)).then((argument) => {
+										//console.log(argument);
+										this.state.autocompletion_request = argument.artists;
+										this.update();
+										//faire la boucle pour remplir data_autocompletion
+										if (this.state.autocompletion_request) {
+											//this.state.data_autocompletion=[];
+											this.update({data_autocompletion:[]});
+								
+											for (var i = 0; i < this.state.autocompletion_request.length; i++) {
+												this.state.data_autocompletion[i] = this.state.autocompletion_request[i].name; 
+											};
+											
+										}
+									});
+									break;
+
+						case "release":this.sa.getRelease(str_format(this.state.target_autocompletion)).then((argument) => {
+										console.log(argument);
+										this.state.autocompletion_request = argument.releases;
+										this.update();
+									});
+									//faire la boucle pour remplir data_autocompletion
+									break;
+					}
+					
+			},*/
+
+			//renvoie les infos intéressant de la requête pour le filtre
+			/*get_autocomplete(met_le_la){
+				console.log(this.state.target_autocompletion);
+				console.log(this.state.data_autocompletion);
+				if (this.state.data_autocompletion)
+					{
+						for (var i = 0; i < 10; i++) {
+							met_le_la[i]=this.state.data_autocompletion[i];
+						};
+					}
+					this.update();
+
+			}*/
+		}
+	</script>
+</app>

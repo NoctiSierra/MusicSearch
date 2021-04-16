@@ -1,0 +1,34 @@
+<album>
+	<div class="card border-primary mb-3 mx-2" style="max-width: 20rem;min-width: 20rem; max-height:30rem; min-height:30rem; ">
+		<div class="card-header">{props.refere.title}</div>
+		<div class="card-body">
+			<h3 class="card-title">Artiste</h3>
+			<div class="text-center">
+				<p each={artiste in props.refere['artist-credit']}>{artiste.name}</p>
+			</div>
+			<div class="text-center">
+				date de parution : {props.refere.date}<br>
+				Pays : {props.refere.country}
+			</div>
+			<br>
+			<h2 class="text-center">score :</h2>
+			<div class="text-center">
+				<p>{props.refere.score}/100</p>
+			</div>
+			<div class="text-center">
+			<button class="btn btn-primary my-2 my-sm-0" onclick="{_submit}">En savoir plus</button>
+			</div>
+		</div>
+	</div>
+	<script>
+		export default{
+
+			_submit(e){
+				e.preventDefault();
+				this.props.listen(this.props.identifiant);
+				console.log("id:"+this.props.identifiant);
+				return false;
+			}
+		}
+	</script>
+</album>

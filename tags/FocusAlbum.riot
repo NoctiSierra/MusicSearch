@@ -1,0 +1,28 @@
+<focusAlbum>
+<button class="btn btn-primary sizer" onclick="{_retour}">Retour au listing</button>
+	<div class="jumbotron my-auto" style="min-width: 50rem;max-width: 50rem;">
+		<h1 class="display-3">{props.acces.title}</h1><hr>
+		<h3 if={props.acces.disambiguation} >Version : {props.acces.disambiguation}</h3>
+		<h3>date de parution : {props.acces.date}</h3>
+		<h3>Pays de publication : {props.acces.country}</h3>
+		<div class="card border-primary mb-3" style="max-width: 20rem;">
+			<div class="card-header">Musique de l'album</div>
+			<div class="card-body">
+				<div each={ med in props.acces.media}>
+					<p each={ sound in med.tracks}>{sound.number} : {sound.title}<hr></p>
+				</div>
+			</div>
+		  </div>	
+	  </div>
+
+	<script>
+		export default{
+			/* on affiche la liste des recherche*/
+			_retour(e){	
+				e.preventDefault();
+				this.props.retour();
+				return false;
+			}
+		}
+	</script>
+</focusAlbum>

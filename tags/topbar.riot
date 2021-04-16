@@ -1,0 +1,70 @@
+<TopBar>
+	<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+		<a class="navbar-brand" href="#">MusicSearch</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+
+		<div class="collapse navbar-collapse" id="navbarColor01">
+			
+			<form class="form-inline my-2 my-lg-0" onsubmit="{_soumission}" id="form">
+				<input class="form-control mr-sm-2" type="text" placeholder="Search" id="text" >
+				<!-- <datalist id="autocompletion_list">
+					<option each={item in state.autocompletion} value={item}></option>
+				</datalist> -->
+				<select class="form-control mr-sm-2" name="category" id="type">
+					<option value="artist" selected>artist</option>
+					<option value="release">release</option>
+					<option value="recording">recording</option>
+				</select>
+				<button class="btn btn-secondary my-2 my-sm-0" type="submit" >rechercher</button>
+
+			</form>
+		</div>
+	</nav>
+
+	<script>
+		/*const search=document.getElementById('text');
+
+		//autocompletion
+		search.addEventListener('input',() =>{
+			this._autocompletion();
+		});*/
+		export default{
+			onMouted(props,state){
+				this.$('input').focus();
+
+			},
+			_submitButton(e){
+					e.preventDefault();
+					document.getElementById('form').submit();
+					console.log("_soumission");
+					return false;
+			},
+			_soumission(e){
+				console.log(this.props.transmission);
+				e.preventDefault();
+				if (this.props.transmission) {
+					var f=document.getElementById('type');
+					this.props.transmission(f.options[f.selectedIndex].value,document.getElementById('text').value);
+				};
+				return false;
+			},
+			/*_autocompletion(e){
+				//console.log("recupération des valeurs d'autocompletion");
+				console.log("chaine avant:"+document.getElementById('text').value);
+				if (this.props.completion) {
+					var f=document.getElementById('type');
+					this.props.completion(document.getElementById('text').value,f.options[f.selectedIndex].value);
+				};
+				var tmp_test=[];
+				console.log(document.getElementById('text').value);
+				this.props.getter(this.state.autocompletion);
+				//console.log(tmp_test);
+			}*/
+
+		}
+
+
+	</script>
+</TopBar>
